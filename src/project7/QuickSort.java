@@ -4,6 +4,16 @@ import java.util.*;
 
 public class QuickSort<T extends Comparable<? super T>> implements MonitoredSort<T> {
 	long swaps, comparisons, time;
+	
+
+	public QuickSort(long swaps, long comparisons, long time) {
+		this.swaps = swaps;
+		this.comparisons = comparisons;
+		this.time = time;
+	}
+
+	public QuickSort() {
+	}
 
 	@Override
 	public void sortList(List<T> a) {
@@ -59,6 +69,11 @@ public class QuickSort<T extends Comparable<? super T>> implements MonitoredSort
 	@Override
 	public String getSortType() {
 		return "Quicksort";
+	}
+
+	@Override
+	public MonitoredSort<T> copy() {
+		return new QuickSort<T>(swaps, comparisons, time);
 	}
 
 }

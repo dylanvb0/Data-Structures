@@ -5,6 +5,17 @@ import java.util.*;
 public class BubbleSort<T extends Comparable<? super T>> implements MonitoredSort<T> {
 	long swaps, comparisons, time;
 
+	public BubbleSort(long swaps, long comparisons, long time) {
+		super();
+		this.swaps = swaps;
+		this.comparisons = comparisons;
+		this.time = time;
+	}
+
+	public BubbleSort() {
+		
+	}
+
 	@Override
 	public void sortList(List<T> a) {
 		swaps = comparisons = 0;
@@ -41,6 +52,11 @@ public class BubbleSort<T extends Comparable<? super T>> implements MonitoredSor
 	@Override
 	public String getSortType() {
 		return "Bubble";
+	}
+
+	@Override
+	public MonitoredSort<T> copy() {
+		return new BubbleSort<T>(swaps, comparisons, time);
 	}
 
 }

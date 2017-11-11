@@ -8,4 +8,5 @@ public interface MonitoredSort<T extends Comparable<?>> {
 	public long getComparisons();
 	public long getTime();
 	public String getSortType();
+	public MonitoredSort<T> copy();
 }

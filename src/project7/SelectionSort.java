@@ -4,6 +4,16 @@ import java.util.List;
 
 public class SelectionSort<T extends Comparable<? super T>> implements MonitoredSort<T> {
 	long swaps, comparisons, time;
+	
+	public SelectionSort(long swaps, long comparisons, long time){
+		this.swaps = swaps;
+		this.comparisons = comparisons;
+		this.time = time;
+	}
+	
+	public SelectionSort() {
+		
+	}
 
 	@Override
 	public void sortList(List<T> a) {
@@ -42,6 +52,11 @@ public class SelectionSort<T extends Comparable<? super T>> implements Monitored
 	@Override
 	public String getSortType() {
 		return "Selection";
+	}
+
+	@Override
+	public MonitoredSort<T> copy() {
+		return new SelectionSort<T>(swaps, comparisons, time);
 	}
 
 }

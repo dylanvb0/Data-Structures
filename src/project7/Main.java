@@ -3,39 +3,67 @@ package project7;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Main {
-	// lower the number in the following line if you get sick of waiting for bubble sort, total run time with 250,000 items > 90 mins on my computer
+	// lower the number in the following line if you get sick of waiting for bubble sort, total run time with 250,000 items ~30 mins on my computer
 	static final int NUM_ITEMS = 250000 ;
+	static final int NUM_LISTS = 5;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ExecutionException, InterruptedException {
+		long programStart = System.currentTimeMillis();
+		long totalSortTime = 0;
 		List<MonitoredSort<Integer>> sortTypes = initSortTypes();
+		// First asynchronously sort the lists and store the results in an array
+		ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		ArrayList<Future<MonitoredSort<Integer>>> results = new ArrayList<Future<MonitoredSort<Integer>>>();
+		for(int i = 0; i < sortTypes.size(); i++) {
+			final MonitoredSort<Integer> type = sortTypes.get(i);
+			final Integer j = i % NUM_LISTS;
+			results.add(pool.submit(new Callable<MonitoredSort<Integer>>() {
+
+				@Override
+				public MonitoredSort<Integer> call() throws Exception {
+					type.sortList(getList(j));
+					return type;
+				}
+				
+			}));
+		}
+		// then print results as the next one in order comes through
 		printHeaders();
 		printCellRowWithTitle();
-		for(int i = 0; i < sortTypes.size(); i++) { // loop through sort types
-			MonitoredSort<Integer> type = sortTypes.get(i);
-			printCell(type.getSortType(), 15);
-			printCell(getStableString(isStable(i)), 10);
-			for(int j = 0; j < 5; j++) { // loop through lists to sort
-				if(j != 0) printCell("", 15);
-				if(j != 0) printCell("", 10);
-				List<Integer> list = getList(j);
-				type.sortList(list);
-				printCell(getListName(j), 20);
-				printCell(getTimeString(type.getTime()), 15);
-				printCell(type.getComparisons(), 15);
-				printCell(type.getSwaps(), 15);
-				System.out.print("│");
-				System.out.println();
-				if(j == 4 && i == sortTypes.size() - 1) {
-					printBottomCellRow();
-				}else if(j == 4){
-					printCellRowWithTitle();
-				}else {
-					printCellRow();
-				}
+		for(int i = 0; i < sortTypes.size(); i++) { 
+			if(i % NUM_LISTS == 0) { // New Sort Type
+				MonitoredSort<Integer> type = sortTypes.get(i);
+				printCell(type.getSortType(), 15);
+				printCell(getStableString(isStable(i)), 10);
+			}else {
+				printCell("", 15);
+				printCell("", 10);
+			}
+			MonitoredSort<Integer> current = results.get(i).get();
+			printCell(getListName(i % NUM_LISTS), 20);
+			printCell(getTimeString(current.getTime()), 15);
+			totalSortTime += current.getTime();
+			printCell(current.getComparisons(), 15);
+			printCell(current.getSwaps(), 15);
+			System.out.print("│");
+			System.out.println();
+			if(i == sortTypes.size() - 1) {
+				printBottomCellRow();
+			}else if(i % NUM_LISTS == NUM_LISTS - 1){
+				printCellRowWithTitle();
+			}else {
+				printCellRow();
 			}
 		}
+		System.out.println("Program Time: " + getTimeString((System.currentTimeMillis() - programStart)));
+		System.out.println("Total Sort Time: " + getTimeString(totalSortTime));
 	}
 	
 
@@ -43,11 +71,11 @@ public class Main {
 
 	static List<MonitoredSort<Integer>> initSortTypes() {
 		List<MonitoredSort<Integer>> sortTypes = new ArrayList<MonitoredSort<Integer>>();
-		sortTypes.add(new SelectionSort<Integer>());
-		sortTypes.add(new InsertionSort<Integer>());
-		sortTypes.add(new BubbleSort<Integer>());
-		sortTypes.add(new MergeSort<Integer>());
-		sortTypes.add(new QuickSort<Integer>());
+		for(int i = 0; i < NUM_LISTS; i++) sortTypes.add(new SelectionSort<Integer>());
+		for(int i = 0; i < NUM_LISTS; i++) sortTypes.add(new InsertionSort<Integer>());
+		for(int i = 0; i < NUM_LISTS; i++) sortTypes.add(new BubbleSort<Integer>());
+		for(int i = 0; i < NUM_LISTS; i++) sortTypes.add(new MergeSort<Integer>());
+		for(int i = 0; i < NUM_LISTS; i++) sortTypes.add(new QuickSort<Integer>());
 		return sortTypes;
 	}
 	

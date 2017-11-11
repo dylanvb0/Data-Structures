@@ -5,6 +5,16 @@ import java.util.*;
 public class MergeSort<T extends Comparable<? super T>> implements MonitoredSort<T> {
 	long swaps, comparisons, time;
 
+	public MergeSort(long swaps, long comparisons, long time) {
+		this.swaps = swaps;
+		this.comparisons = comparisons;
+		this.time = time;
+	}
+
+	public MergeSort() {
+		
+	}
+
 	@Override
 	public void sortList(List<T> a) {
 		swaps = comparisons = 0;
@@ -61,6 +71,11 @@ public class MergeSort<T extends Comparable<? super T>> implements MonitoredSort
 	@Override
 	public String getSortType() {
 		return "Merge";
+	}
+
+	@Override
+	public MonitoredSort<T> copy() {
+		return new MergeSort<T>(swaps, comparisons, time);
 	}
 
 }
